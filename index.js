@@ -132,7 +132,11 @@ module.exports = (path, opts) => {
 
           return consolidate[engineName](resolve(paths.abs, paths.rel), state)
           .then((html) => {
-            ctx.body = html
+				 if (opts.template && !state._is_template) {
+					 return ctx.render(opts.template, {_is_template:true, body:html});
+				 } else {
+					 ctx.body = html
+				 }
           })
         }
       })

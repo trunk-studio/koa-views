@@ -154,4 +154,17 @@ describe('koa-views', function () {
       .expect(/basic:ejs/)
       .expect(200, done)
   })
+
+  // template support
+  it('it should support templates', function (done) {
+    const app = new Koa()
+    .use(views(__dirname, {template:'./fixtures/template.ejs'}))
+    .use(function (ctx) {
+      return ctx.render('./fixtures/template_body.ejs')
+    })
+
+    request(app.listen()).get('/')
+      .expect(/basic:ejs_template/)
+      .expect(200, done)
+  })
 })

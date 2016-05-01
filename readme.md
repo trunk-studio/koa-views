@@ -10,10 +10,12 @@ Template rendering middleware for koa.
 
 > **Note:** This master branch is for koa's upcoming version `koa@2`. Take a look at the `v1.x` branch for `koa@1`.
 
+> **Note:** This is a fork of the [koa-views](https://github.com/queckezz/koa-views) to add support for templates.
+
 ## Installation
 
 ```
-$ npm install koa-views@next
+$ npm install koa-views-templates
 ```
 
 ## Templating engines
@@ -25,13 +27,14 @@ $ npm install koa-views@next
 ## Example
 
 ```js
-var views = require('koa-views');
+var views = require('koa-views-templates');
 
 // Must be used before any router is used
 app.use(views(__dirname + '/views', {
   map: {
     html: 'underscore'
-  }
+ },
+ template: 'mytemplate.ejs'
 }));
 
 app.use(async function (ctx, next) {
