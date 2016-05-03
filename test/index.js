@@ -160,11 +160,12 @@ describe('koa-views', function () {
     const app = new Koa()
     .use(views(__dirname, {template:'./fixtures/template.ejs'}))
     .use(function (ctx) {
-      return ctx.render('./fixtures/template_body.ejs')
+      return ctx.render('./fixtures/template_body.ejs', {title:'title'})
     })
 
     request(app.listen()).get('/')
       .expect(/basic:ejs_template/)
+      .expect(/title/)
       .expect(200, done)
   })
 })
