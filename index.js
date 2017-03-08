@@ -132,13 +132,14 @@ module.exports = (path, opts) => {
 
           return consolidate[engineName](resolve(paths.abs, paths.rel), state)
           .then((html) => {
-				 if (opts.template && !state._is_template) {
-					 state._is_template = true;
-					 state.body = html;
-					 return ctx.render(opts.template, state);
-				 } else {
-					 ctx.body = html
-				 }
+            var template = locals.template || opts.template;
+            if (template && !state._is_template) {
+              state._is_template = true;
+              state.body = html;
+              return ctx.render(template, state);
+            } else {
+              ctx.body = html
+            }
           })
         }
       })
