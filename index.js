@@ -78,6 +78,68 @@ function getPaths(abs, rel, ext) {
 }
 
 /**
+ * Parse Script scope from raw html string.
+ * @param  {String} locals raw html string
+ */
+function parseScripts(locals) {
+  const str = locals;
+  const regex = /\<script(.|\n)*?\>(.|\n)*?\<\/script\>/g;
+  let script = '';
+
+  if (regex.test(str)) {
+    console.log('regex.test(str)=>', regex.test(str));
+    script = str.match(regex).join('\n');
+  }
+  console.log('script=>', script);
+  return script;
+}
+
+/**
+ * Parse Style scope from raw html string.
+ * @param  {String} locals raw html string
+ */
+function parseStyles(locals) {
+  const str = locals;
+  const regex = /(?:\<style(.|\n)*?\>(.|\n)*?\<\/style\>)|(?:\<link(.|\n)*?\>(?:\<\/link\>)?)/g;
+  let style = '';
+
+  if (regex.test(str)) {
+    style = str.match(regex).join('\n');
+  }
+  console.log('style=>', style);
+  return style;
+}
+
+/**
+ * Parse Meta scope from raw html string.
+ * @param  {String} locals raw html string
+ */
+function parseMetas(locals) {
+  const str = locals;
+  const regex = /\<meta(.|\n)*?\>/g;
+  let meta = '';
+
+  if (regex.test(str)) {
+    meta = str.match(regex).join('\n');
+  }
+  return meta;
+}
+
+/**
+ * Parse Body scope from raw html string.
+ * @param  {String} locals raw html string
+ */
+function parseContents(locals) {
+  const str = locals;
+  const contentPattern = '&&<>&&';
+  const regex = new RegExp('\n?' + contentPattern + '.+?' + contentPattern + '\n?', 'g');
+  let body = '';
+  const split = str.split(regex);
+  body = split[0];
+  return body;
+}
+
+/**
  * Add `render` method.
  *
  * @param {String} path
@@ -135,7 +197,11 @@ module.exports = (path, opts) => {
             var template = locals.template || opts.template;
             if (template && !state._is_template) {
               state._is_template = true;
-              state.body = html;
+              state.script = parseScripts(html);
+              state.style = parseStyles(html);
+              state.meta = parseMetas(html);
+              state.body = parseContents(html);
+
               return ctx.render(template, state);
             } else {
               ctx.body = html
