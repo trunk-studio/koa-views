@@ -87,10 +87,8 @@ function parseScripts(locals) {
   let script = '';
 
   if (regex.test(str)) {
-    console.log('regex.test(str)=>', regex.test(str));
     script = str.match(regex).join('\n');
   }
-  console.log('script=>', script);
   return script;
 }
 
@@ -106,7 +104,6 @@ function parseStyles(locals) {
   if (regex.test(str)) {
     style = str.match(regex).join('\n');
   }
-  console.log('style=>', style);
   return style;
 }
 
