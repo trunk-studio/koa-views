@@ -78,62 +78,36 @@ function getPaths(abs, rel, ext) {
 }
 
 /**
- * Parse Script scope from raw html string.
- * @param  {String} locals raw html string
+ * Parse content scope from raw html string by giving regex.
+ * @param  {String} html raw html string
  */
-function parseScripts(locals) {
-  const str = locals;
-  const regex = /\<script(.|\n)*?\>(.|\n)*?\<\/script\>/g;
-  let script = '';
+function parseByFormat(html, regex) {
+  const str = html;
+  let content = '';
 
   if (regex.test(str)) {
-    script = str.match(regex).join('\n');
+    content = str.match(regex).join('\n');
   }
-  return script;
-}
-
-/**
- * Parse Style scope from raw html string.
- * @param  {String} locals raw html string
- */
-function parseStyles(locals) {
-  const str = locals;
-  const regex = /(?:\<style(.|\n)*?\>(.|\n)*?\<\/style\>)|(?:\<link(.|\n)*?\>(?:\<\/link\>)?)/g;
-  let style = '';
-
-  if (regex.test(str)) {
-    style = str.match(regex).join('\n');
-  }
-  return style;
-}
-
-/**
- * Parse Meta scope from raw html string.
- * @param  {String} locals raw html string
- */
-function parseMetas(locals) {
-  const str = locals;
-  const regex = /\<meta(.|\n)*?\>/g;
-  let meta = '';
-
-  if (regex.test(str)) {
-    meta = str.match(regex).join('\n');
-  }
-  return meta;
+  return content;
 }
 
 /**
  * Parse Body scope from raw html string.
- * @param  {String} locals raw html string
+ * @param  {String} html raw html string
  */
-function parseContents(locals) {
-  const str = locals;
-  const contentPattern = '&&<>&&';
-  const regex = new RegExp('\n?' + contentPattern + '.+?' + contentPattern + '\n?', 'g');
-  let body = '';
-  const split = str.split(regex);
-  body = split[0];
-  return body;
+function parseContents(html) {
+  const state = {};
+  const regMeta = /\<meta(.|\n)*?\>/g;
+  const regSctipt = /\<script(.|\n)*?\>(.|\n)*?\<\/script\>/g;
+  const regStyle = /(?:\<style(.|\n)*?\>(.|\n)*?\<\/style\>)|(?:\<link(.|\n)*?\>(?:\<\/link\>)?)/g;
+  state.script = parseByFormat(html, regSctipt);
+  state.style = parseByFormat(html, regStyle);
+  state.meta = parseByFormat(html, regMeta);
+  state.body = html
+                .replace(regMeta, '')
+                .replace(regSctipt, '')
+                .replace(regStyle, '');
+  return state;
 }
 
 /**
@@ -194,10 +168,11 @@ module.exports = (path, opts) => {
             var template = locals.template || opts.template;
             if (template && !state._is_template) {
               state._is_template = true;
-              state.script = parseScripts(html);
-              state.style = parseStyles(html);
-              state.meta = parseMetas(html);
-              state.body = parseContents(html);
+              const parsedState = parseContents(html);
+              state.body = parsedState.body;
+              state.script = parsedState.script;
+              state.style = parsedState.style;
+              state.meta = parsedState.meta;
 
               return ctx.render(template, state);
             } else {
